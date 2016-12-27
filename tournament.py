@@ -1,16 +1,10 @@
 # this will be a script for automatic tournament. (chris)
 import sys
-import subprocess
 import operator
+import Util
 
 tournament_win_ratio = {}
 tournament_rating = {}
-
-def get_win_ratio(line):
-	return float(line.split('won ')[1].split('%')[0])
-
-def get_rating(line):
-	return float(line.split('(')[1].split(' of')[0])
 
 def play_matches(players):
 	for i in players:
@@ -25,17 +19,15 @@ def play_matches(players):
 			if(p1 == p2):
 				continue
 
-			match = subprocess.Popen("python rpsrunner.py " + p1 + " " + p2,
-									stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-			output = match.communicate()[0]
+			output = Util.play_match(p1, p2)
 
 			p1_info = output.split(p1)[1].split('\n')
 			p2_info = output.split(p2)[1].split('\n')
 
-			p1_win_ratio = get_win_ratio(p1_info[0])
-			p1_rating = get_rating(p1_info[1])
-			p2_win_ratio = get_win_ratio(p2_info[0])
-			p2_rating = get_rating(p2_info[1])
+			p1_win_ratio = Util.get_win_ratio(p1_info[0])
+			p1_rating = Util.get_rating(p1_info[1])
+			p2_win_ratio = Util.get_win_ratio(p2_info[0])
+			p2_rating = Util.get_rating(p2_info[1])
 
 			tournament_win_ratio[p1] += p1_win_ratio
 			tournament_rating[p1] += p1_rating
@@ -54,17 +46,16 @@ def play_matches(players):
 						 + "% / "+ str(tournament_rating[player]/matches_per_player) + "\n"
 
 	f = open("output_tournament.txt", "w+")
-	f.write(f)
+	f.write(output_string)
 	f.close()
 
 def main():
 	players_path = sys.argv[1:]
-	if(players_path < 2):
+	if(len(players_path) < 2):
 		print("You need to pass at least two players")
 		exit(0)
 
 	play_matches(players_path)
-
 
 
 main()
