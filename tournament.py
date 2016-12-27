@@ -27,17 +27,15 @@ def play_matches(players):
 
 			match = subprocess.Popen("python rpsrunner.py " + p1 + " " + p2,
 									stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-			output = match.communicate()[0].split('\n')
-			if(p1 in output[7]):
-				p1_win_ratio = get_win_ratio(output[7])
-				p1_rating = get_rating(output[8])
-				p2_win_ratio = get_win_ratio(output[11])
-				p2_rating = get_rating(output[12])
-			else:
-				p1_win_ratio = get_win_ratio(output[11])
-				p1_rating = get_rating(output[12])
-				p2_win_ratio = get_win_ratio(output[7])
-				p2_rating = get_rating(output[8])
+			output = match.communicate()[0]
+
+			p1_info = output.split(p1)[1].split('\n')
+			p2_info = output.split(p2)[1].split('\n')
+
+			p1_win_ratio = get_win_ratio(p1_info[0])
+			p1_rating = get_rating(p1_info[1])
+			p2_win_ratio = get_win_ratio(p2_info[0])
+			p2_rating = get_rating(p2_info[1])
 
 			tournament_win_ratio[p1] += p1_win_ratio
 			tournament_rating[p1] += p1_rating
@@ -48,11 +46,16 @@ def play_matches(players):
 			print("Match " + str(m) + " of " + str(total_matches))
 
 	sorted_dict = sorted(tournament_rating.items(), key=operator.itemgetter(1), reverse=True)
+	output_string = ""
 
 	for i in sorted_dict:
 		player = i[0]
-		print(player + ": " + str(tournament_win_ratio[player]/matches_per_player) + "% / " + 
-			  str(tournament_rating[player]/matches_per_player))
+		output_string += player + ": " + str(tournament_win_ratio[player]/matches_per_player) \
+						 + "% / "+ str(tournament_rating[player]/matches_per_player) + "\n"
+
+	f = open("output_tournament.txt", "w+")
+	f.write(f)
+	f.close()
 
 def main():
 	players_path = sys.argv[1:]
