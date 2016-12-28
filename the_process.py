@@ -33,8 +33,8 @@ def play_matches(players):
 
 	print("Final test results:")
 	print("> " + str(len(challenged)) + " tests")
-	print("> Total absolute wins: " + str(final_wins) + "(" + str(final_wins/len(challenged)) + "%)")
-	print("> Win ratio: " + str(final_win_ratio/len(challenged)))
+	print("> Total absolute wins: " + str(final_wins) + " (" + str(100.0*final_wins/len(challenged)) + "%)")
+	print("> Win ratio: " + str(final_win_ratio/len(challenged)) + "%")
 	print("> Rating: " + str(final_rating/len(challenged)))
 
 def main():
