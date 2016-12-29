@@ -189,13 +189,15 @@ if input == "":
     count = -1
     history = []
     prediction = {}
-    history_sizes = [5, 16, 30]
+    history_sizes = [8, 16, 32]
     wisards = {}
     wisard_hits = {}
-    min_random_turns = 10
+    min_random_turns = 0
+    final_random_turns = 0
 
     for hs in history_sizes:
-        wisards[hs] = WiSARD(addressSize=5,sizeOfEntry=hs,verbose=False,decay=Decay(),up=Up())
+        wisards[hs] = WiSARD(addressSize=4,sizeOfEntry=hs,verbose=False,
+                             decay=Decay(),up=Up(),makeBleaching=MakeBleaching())
         wisard_hits[hs] = []
 
     char2num = {"R":0, "P":1, "S":2}
@@ -204,9 +206,10 @@ if input == "":
 
     output = random.choice(["R","P","S"])
 
-elif len(history) < history_sizes[0] or count < min_random_turns:
+elif len(history) < history_sizes[0] or count < min_random_turns or count > 1000-final_random_turns:
     output = random.choice(["R","P","S"])
     history.append(char2num[input])
+    history.append(char2num[last_output])
 else:
     # training
     for hs in history_sizes:
@@ -218,6 +221,7 @@ else:
 
     # updating history
     history.append(char2num[input])
+    history.append(char2num[last_output])
     prediction = {}
 
     # classifying
@@ -234,24 +238,26 @@ else:
                 max_value = r[1]
 
         if(hs in last_prediction):
-            wisard_hits[hs].append(1 if last_prediction[hs] == input else 0)
+            wisard_hits[hs].append(1 if last_prediction[hs] == char2num[input] else 0)
 
     # updating history
     if(len(history) > history_sizes[len(history_sizes)-1]):
         history.pop(0)
+        history.pop(0)
 
     best_sum = 0
+    output = ''
     # choosing the actual best wisard
     for hs in history_sizes:
-        if(hs not in prediction):
+        if(hs not in prediction or len(wisard_hits[hs]) == 0):
             continue
-        if(sum(wisard_hits[hs]) >= best_sum):
+        if(sum(wisard_hits[hs])/len(wisard_hits[hs]) >= best_sum):
             best_sum = sum(wisard_hits[hs])
             output = defeated_by[num2char[prediction[hs]]]
 
-    if(count % 10 == 0):
+    if(count % 10 == 0 or output == ''):
         output = random.choice(["R","P","S"])
 
-
+last_output = output
 last_prediction = prediction
 count += 1
