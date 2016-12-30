@@ -20,7 +20,7 @@ class GetBotSpider(scrapy.Spider):
 
     def parse_code(self, response):
         code = response.xpath("//code[@class='lang-py']/text()").extract_first()
-        bot_name = response.xpath("//div/h1/text()").extract_first().replace(' ','_')
+        bot_name = response.xpath("//div/h1/text()").extract_first().replace(' ','_').replace('&', '_and_')
         bot_rating = response.xpath("//tr[3]/td[2]/text()").extract_first().strip()
         self.save(bot_name, bot_rating, code)
 
